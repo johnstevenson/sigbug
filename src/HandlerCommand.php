@@ -24,10 +24,10 @@ Symfony QuestionHelper when selecting input from a list:
 <info>php sigbug handler</info>
 
 The handler reports receiving a Ctrl-C signal then exits, which unfortunately
-leaves the terminal in a broken state (use Ctrl-Break then Enter to restart it).
+leaves the terminal in a broken state. Use Ctrl-Break then Enter to restart it.
 
-Ctrl-C will work normally if the signal handler does not call exit, so the
-program continues, or when using the other QuestionHelper methods:
+Ctrl-C will work normally if the signal handler does not call exit or when using
+the other QuestionHelper methods:
 
 <info>php sigbug handler --no-exit</info>
 <info>php sigbug handler --info</info>
@@ -35,13 +35,13 @@ program continues, or when using the other QuestionHelper methods:
 
 The <info>--default</info> option is included to complement the <info>restart</info> command, where the
 issue is triggered when SIGINT is set to be ignored (SIG_IGN) in the parent
-process then set to its default action (SIG_DFL), which is exiting, in the
-restarted (child) process because it inherited the ignored state.
+process then set to its default action (SIG_DFL) in the restarted (child)
+process because it inherited the ignored state.
 
 Here it can be used to examine calling a new process from a parent with SIGINT
 ignored, by using the `trap` command:
 
-<info>trap "" SIGINT; php -r "passthru(PHP_BINARY.' sigbug handler --default');"; trap - SIGINT;</info>`
+<info>trap "" SIGINT; php -r "passthru(PHP_BINARY.' sigbug handler --default');"; trap - SIGINT;</info>
 
 Using Ctrl-C will break the terminal, but only if PHP is the parent process. For
 example, Ctrl-C will work normally when using:

@@ -12,7 +12,7 @@ use Composer\XdebugHandler\XdebugHandler;
 use Symfony\Component\Console\Application;
 
 if (in_array('restart', $_SERVER['argv'], true) &&
-    !in_array('--none', $_SERVER['argv'], true)) {
+    !preg_grep('/^--none|-h|--help$/', $_SERVER['argv'])) {
     if (in_array('--debug', $_SERVER['argv'], true)) {
         putenv('XDEBUG_HANDLER_DEBUG=1');
     }
