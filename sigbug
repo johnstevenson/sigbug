@@ -1,0 +1,26 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+require_once __DIR__ . '/vendor/autoload.php';
+
+use App\HandlerCommand;
+use App\Restarter;
+use App\RestartCommand;
+use Composer\XdebugHandler\XdebugHandler;
+use Symfony\Component\Console\Application;
+
+if (in_array('restart', $_SERVER['argv'], true) &&
+    !in_array('--none', $_SERVER['argv'], true)) {
+    if (in_array('--debug', $_SERVER['argv'], true)) {
+        putenv('XDEBUG_HANDLER_DEBUG=1');
+    }
+    $xdebug = new Restarter('Sigbug');
+    $xdebug->check();
+}
+
+$app = new Application();
+$app->add(new HandlerCommand());
+$app->add(new RestartCommand());
+$app->run();
