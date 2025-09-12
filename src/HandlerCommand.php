@@ -19,7 +19,7 @@ class HandlerCommand extends BaseCommand
             ->setHelp(
                 <<<EOT
 The <info>handler</info> command uses a signal handler to demonstrate a Ctrl-C issue in
-Symfony QuestionHelper when selecting input from a list:
+Symfony QuestionHelper when selecting input from a list (ChoiceQuestion):
 
 <info>php sigbug handler</info>
 
@@ -33,18 +33,18 @@ the other QuestionHelper methods:
 <info>php sigbug handler --info</info>
 <info>php sigbug handler --confirm</info>
 
-The <info>--default</info> option is included to complement the <info>restart</info> command, where the
-issue is triggered when SIGINT is set to be ignored (SIG_IGN) in the parent
-process then set to its default action (SIG_DFL) in the restarted (child)
-process because it inherited the ignored state.
+The <info>--default</info> option uses a signal handler that explicitly sets SIGINT to its
+default action (SIG_DFL). This mimics the behaviour of the child process in the
+<info>restart</info> command, which is needed because the parent sets SIGINT to be ignored
+(SIG_IGN) and the child process inherits this state.
 
 Here it can be used to examine calling a new process from a parent with SIGINT
 ignored, by using the `trap` command:
 
 <info>trap "" SIGINT; php -r "passthru(PHP_BINARY.' sigbug handler --default');"; trap - SIGINT;</info>
 
-Using Ctrl-C will break the terminal, but only if PHP is the parent process. For
-example, Ctrl-C will work normally when using:
+Using Ctrl-C will break the terminal, but only if PHP is the parent process. If
+the shell is the parent, Ctrl-C will work normally:
 
 <info>trap "" SIGINT; php sigbug handler --default; trap - SIGINT;</info>
 
@@ -88,7 +88,7 @@ EOT
                 'default',
                 null,
                 InputOption::VALUE_NONE,
-                'Set the default handler. Ctrl-C might break the terminal. See below for details.'
+                'Set the default handler (SIG_DFL). Ctrl-C might break the terminal.'
             ),
         ];
     }

@@ -19,7 +19,7 @@ class RestartCommand extends BaseCommand
             ->setHelp(
                 <<<EOT
 The <info>restart</info> command uses a process restart to demonstrate a Ctrl-C issue in
-Symfony QuestionHelper when selecting input from a list:
+Symfony QuestionHelper when selecting input from a list (ChoiceQuestion):
 
 <info>php sigbug restart</info>
 
@@ -34,11 +34,11 @@ QuestionHelper methods:
 <info>php sigbug restart --confirm</info>
 
 The issue is triggered when SIGINT is set to be ignored (SIG_IGN) in the parent
-process then set to its default action (SIG_DFL) in the restarted (child)
-process because it inherited the ignored state.
+process, then set to its default action (SIG_DFL) in the child process because
+it inherited the ignored state.
 
-When there is no restart, SIGINT remains in its initial state (which would
-normally be the default action).
+When there is no restart, SIGINT remains in its initial state - which is the
+default action.
 
 xdebug-handler is used for the restart, regardless of whether Xdebug is loaded
 or not.
