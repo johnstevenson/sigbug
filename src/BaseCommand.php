@@ -77,46 +77,59 @@ abstract class BaseCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $message = $this->doWork($input, $output, 1);
+        $output->writeln('<question>You entered: '.$message.'. The process is continuing.</question>');
+
+        $message = $this->doWork($input, $output, 2);
+        $output->writeln('<question>You entered: '.$message.'. The process has finished.</question>');
+
+        return Command::SUCCESS;
+    }
+
+    private function doWork(InputInterface $input, OutputInterface $output, int $seq): string
+    {
         $mode = $this->getMode($input);
 
         switch ($mode) {
             case self::MODE_INFO:
-                $message = $this->getInfo($input, $output);
-                break;
+                return $this->getInfo($input, $output, $seq);
             case self::MODE_CONFIRM:
-                $message = $this->getConfirmation($input, $output);
-                break;
+                return $this->getConfirmation($input, $output, $seq);
             default:
-                $message = $this->getChoice($input, $output);
-                break;
+                return $this->getChoice($input, $output, $seq);
         }
-
-        $output->writeln('You entered: '.$message);
-        return Command::SUCCESS;
     }
 
-    private function getInfo(InputInterface $input, OutputInterface $output): string
+    private function getInfo(InputInterface $input, OutputInterface $output, int $seq): string
     {
         $helper = $this->getHelper('question');
-        $question = new Question('Enter something or Ctrl-C: ');
+        $text = $seq === 1 ? 'Enter something' : 'Enter something else';
+        $question = new Question($text.' or Ctrl-C: ');
 
         return (string) $helper->ask($input, $output, $question);
     }
 
-    private function getConfirmation(InputInterface $input, OutputInterface $output): string
+    private function getConfirmation(InputInterface $input, OutputInterface $output, int $seq): string
     {
         $helper = $this->getHelper('question');
-        $question = new ConfirmationQuestion('Confirm something or Ctrl-C [y|n]: ');
+        $text = $seq === 1 ? 'Confirm something' : 'Confirm something else';
+        $question = new ConfirmationQuestion($text.' or Ctrl-C [y|n]: ');
         $answer = $helper->ask($input, $output, $question);
 
         return $answer ? 'yes' : 'no';
     }
 
-    private function getChoice(InputInterface $input, OutputInterface $output): string
+    private function getChoice(InputInterface $input, OutputInterface $output, int $seq): string
     {
         $helper = $this->getHelper('question');
-        $question = new ChoiceQuestion('Select your favorite color', ['red', 'blue', 'yellow'], 0);
-        $question->setErrorMessage('Color %s is not valid.');
+
+        if ($seq === 1) {
+            $question = new ChoiceQuestion('Select your favorite color', ['red', 'blue', 'yellow'], 0);
+            $question->setErrorMessage('%s is not valid.');
+        } else {
+            $question = new ChoiceQuestion('Select your favorite bird', ['wren', 'robin', 'sparrow'], 0);
+            $question->setErrorMessage('%s is not valid.');
+        }
 
         return $helper->ask($input, $output, $question);
     }
